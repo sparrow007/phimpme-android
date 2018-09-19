@@ -3126,6 +3126,7 @@ public class LFMainActivity extends SharedMediaActivity {
                                 if (albumsMode) {
                                     undoAlbumDeletion(media1);
                                 }
+                                refreshListener.onRefresh();
                             }
                         });
                     }else{
@@ -3139,6 +3140,7 @@ public class LFMainActivity extends SharedMediaActivity {
                                 if (albumsMode) {
                                     undoAlbumDeletion(media1);
                                 }
+                                refreshListener.onRefresh();
                             }
                         });
                     }
@@ -3164,12 +3166,12 @@ public class LFMainActivity extends SharedMediaActivity {
         }else if(!all_photos && !fav_photos && editMode){
             for(Media m: getAlbum().getSelectedMedia()){
                 String name = m.getPath().substring(m.getPath().lastIndexOf("/") + 1);
-                deletedImages.add(new Media(Environment.getExternalStorageDirectory() + "/" + ".nomedia" + "/" + name + UUID.randomUUID()));
+                deletedImages.add(new Media(Environment.getExternalStorageDirectory() + "/" + ".nomedia" + "/" + name));
             }
         } else if(all_photos && !fav_photos && editMode){
             for(Media m: selectedMedias){
                 String name = m.getPath().substring(m.getPath().lastIndexOf("/") + 1);
-                deletedImages.add(new Media(Environment.getExternalStorageDirectory() + "/" + ".nomedia" + "/" + name + UUID.randomUUID()));
+                deletedImages.add(new Media(Environment.getExternalStorageDirectory() + "/" + ".nomedia" + "/" + name));
             }
         }
         return deletedImages;
@@ -3181,20 +3183,13 @@ public class LFMainActivity extends SharedMediaActivity {
         for(int i = 0; i < media.size(); i++){
             int index = media.get(i).getPath().lastIndexOf("/");
             String name = media.get(i).getPath().substring(index + 1);
-            try {
-                realm.beginTransaction();
-                String trashpath = trashbinpath + "/" + name;
-                TrashBinRealmModel trashBinRealmModel = realm.createObject(TrashBinRealmModel.class, trashpath);
-                trashBinRealmModel.setOldpath(media.get(i).getPath());
-                trashBinRealmModel.setDatetime(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()));
-                trashBinRealmModel.setTimeperiod("null");
-                realm.commitTransaction();
-            }catch (RealmPrimaryKeyConstraintException exp) {
-                exp.printStackTrace();
-                realm = Realm.getDefaultInstance();
-                Log.e("MY TAG", "PHOTO HAS SAME NAME EIXSTS IN TRASH BIN ");
-               // Toast.makeText(getApplicationContext(), "Image Name is Already exist in TrashBin", Toast.LENGTH_SHORT).show();
-            }
+            realm.beginTransaction();
+            String trashpath = trashbinpath + "/" + name;
+            TrashBinRealmModel trashBinRealmModel = realm.createObject(TrashBinRealmModel.class, trashpath);
+            trashBinRealmModel.setOldpath(media.get(i).getPath());
+            trashBinRealmModel.setDatetime(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(new Date()));
+            trashBinRealmModel.setTimeperiod("null");
+            realm.commitTransaction();
         }
     }
 
@@ -3221,19 +3216,16 @@ public class LFMainActivity extends SharedMediaActivity {
                         (datafrom,oldFolder) });
             }
         }
-
         for (int i = 0; i < deleteImages.size(); i++) {
             removeFromRealm(deleteImages.get(i).getPath());
         }
-
         refreshListener.onRefresh();
     }
-    
+
     private boolean restoreMove(Context context, String source, String targetDir){
         File from = new File(source);
         File to = new File(targetDir);
-        boolean isCopy = ContentHelper.moveFile(context, from, to);
-        return isCopy;
+        return ContentHelper.moveFile(context, from, to);
     }
 
     private void removeFromRealm(String path){
@@ -4037,11 +4029,5 @@ public class LFMainActivity extends SharedMediaActivity {
             } else
                 asyncActivityRef.requestSdCardPermissions();
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        Log.e("MY TAG", "ACTIVITY DESTROY");
-        super.onDestroy();
     }
 }
