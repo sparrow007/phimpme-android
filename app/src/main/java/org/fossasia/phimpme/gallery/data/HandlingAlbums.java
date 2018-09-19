@@ -2,8 +2,10 @@ package org.fossasia.phimpme.gallery.data;
 
 import android.content.Context;
 import android.media.MediaScannerConnection;
+import android.util.Log;
 
 import org.fossasia.phimpme.R;
+import org.fossasia.phimpme.base.SharedMediaActivity;
 import org.fossasia.phimpme.gallery.adapters.AlbumsAdapter;
 import org.fossasia.phimpme.gallery.data.providers.StorageProvider;
 import org.fossasia.phimpme.gallery.data.base.AlbumsComparators;
@@ -330,6 +332,10 @@ public class HandlingAlbums {
 
   public Album getSelectedAlbum(int index) {
     return selectedAlbums.get(index);
+  }
+
+  public ArrayList<Album> getSelectedAlbums() {
+      return selectedAlbums;
   }
 
   public void loadAlbums(Context applicationContext) {
